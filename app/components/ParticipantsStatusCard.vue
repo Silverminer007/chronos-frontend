@@ -51,7 +51,7 @@ const getParticipantMenuItems = (participant: UserParticipant) => {
       .filter(r => r !== participant.role)
       .map(role => ({
         label: getRoleLabel(role) || 'Keine Rolle',
-        command: () => handleChangeRole(participant.user_id, role)
+        command: () => handleChangeParticipantRole(participant.user_id, role)
       }));
 
   return [
@@ -68,7 +68,7 @@ const getParticipantMenuItems = (participant: UserParticipant) => {
   ];
 };
 
-const handleChangeRole = async (userId: number, role: string) => {
+const handleChangeParticipantRole = async (userId: number, role: string) => {
   try {
     await appointmentsStore.changeParticipantRole(appointment.id, userId, role);
     toast.add({
@@ -96,7 +96,7 @@ const handleRemoveParticipant = async (participant: UserParticipant) => {
       detail: `${participant.name} wurde entfernt`,
       life: 3000
     });
-  } catch {
+  } catch (err) {
     toast.add({
       severity: 'error',
       summary: 'Fehler',
@@ -262,7 +262,7 @@ const getStatusBadgeClass = (status: string) => {
                   v-if="!item.separator"
                   class="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
                   :class="item.label === 'Entfernen' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'"
-                  @click="item.command?.({originalEvent: $event, item})"
+                  @click="item.command?.()"
               >
                 <Icon v-if="item.iconName" :name="item.iconName" class="text-sm"/>
                 <span>{{ item.label }}</span>
@@ -280,3 +280,7 @@ const getStatusBadgeClass = (status: string) => {
     />
   </div>
 </template>
+
+<style scoped>
+
+</style>

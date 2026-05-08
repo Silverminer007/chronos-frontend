@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type {Appointment, ParticipantGroup, Role, UserParticipant} from '~/types';
 import type {Appointment, Group, Role} from '~/types';
 import {useAppointmentsStore} from '~/stores/appointments';
 import {useAuthStore} from '~/stores/auth';
 import {useGroups} from '~/composables/useGroups';
 import {useToast} from 'primevue/usetoast';
+import Menu from "primevue/menu";
 
 const {appointment} = defineProps<{
   appointment: Appointment;
@@ -19,6 +21,13 @@ const isResponsible = computed(() => {
   if (!appointment || !authStore.user?.id) return false;
   return appointment.participants?.some(
       p => p.user_id === authStore.user?.id && p.role === 'RESPONSIBLE'
+  ) || false;
+});
+
+const isGuest = computed(() => {
+  if (!appointment || !authStore.user?.id) return false;
+  return appointment.participants?.some(
+      p => p.user_id === authStore.user?.id && p.role === 'GUEST'
   ) || false;
 });
 
@@ -63,6 +72,11 @@ const searchResults = ref<(Group & { member_count?: number })[]>([]);
 const selectedGroup = ref<(Group & { member_count?: number }) | null>(null);
 const selectedRole = ref<Role>('ATTENDANT');
 const adding = ref(false);
+const groupRoleMenuRef = ref<Record<number, InstanceType<typeof Menu> | null>>({});
+
+const toggleGroupRoleMenu = (event: Event, groupId: number) => {
+  groupRoleMenuRef.value[groupId]?.toggle(event);
+};
 
 const handleSearch = async () => {
   searchResults.value = await searchGroups(searchQuery.value);
@@ -115,6 +129,78 @@ const addGroup = async () => {
   } finally {
     adding.value = false;
   }
+};
+
+const handleChangeGroupRole = async (userId: number, role: string) => {
+  try {
+    await appointmentsStore.changeGroupRole(appointment.id, userId, role);
+    toast.add({
+      severity: 'success',
+      summary: 'Rolle geändert',
+      detail: 'Die Rollen aller Gruppenmitglieder wurden erfolgreich geändert',
+      life: 3000
+    });
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      severity: 'error',
+      summary: 'Fehler',
+      detail: 'Rollen konnten nicht geändert werden',
+      life: 3000
+    });
+  }
+};
+
+const getGroupRoleMenuItems = (group: ParticipantGroup) => {
+  const roleItems = (['RESPONSIBLE', 'ATTENDANT', 'HELPER', 'GUEST'] as const)
+      .map(role => ({
+        label: getRoleLabel(role) || 'Keine Rolle',
+        command: () => handleChangeGroupRole(group.id, role)
+      }));
+
+  return [
+    {
+      label: 'Rolle ändern',
+      items: roleItems
+    },
+    {separator: true},
+    {
+      label: 'Entfernen',
+      iconName: 'lucide:trash-2',
+      command: () => handleRemoveGroupParticipant(group)
+    }
+  ];
+};
+
+
+const handleRemoveGroupParticipant = async (group: ParticipantGroup) => {
+  try {
+    await appointmentsStore.removeGroupParticipant(appointment.id, group.id);
+    toast.add({
+      severity: 'success',
+      summary: 'Gruppe entfernt',
+      detail: `${group.name} wurde entfernt`,
+      life: 3000
+    });
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Fehler',
+      detail: 'Gruppe konnte nicht entfernt werden',
+      life: 3000
+    });
+  }
+};
+
+const getRoleLabel = (role: string) => {
+  const labels: Record<string, string> = {
+    RESPONSIBLE: 'Organisatoren',
+    ATTENDANT: 'Teilnehmer',
+    HELPER: 'Helfer',
+    GUEST: 'Gäste',
+    NONE: ''
+  };
+  return labels[role] || role;
 };
 
 const getRoleLabelSingular = (role: string) => {
@@ -259,11 +345,39 @@ const getRoleIconClass = (role: string) => {
               </div>
             </div>
           </div>
-          <Icon
-              :name="isExpanded(group.id) ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-              class="text-gray-400 transition-transform duration-200"
-          />
+          <div class="flex flex-row items-center gap-2">
+            <button
+                v-if="!isGuest"
+                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors shrink-0"
+                @click="toggleGroupRoleMenu($event, group.id)"
+            >
+              <Icon name="lucide:more-vertical"/>
+            </button>
+            <Icon
+                :name="isExpanded(group.id) ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                class="text-gray-400 transition-transform duration-200"
+            />
+          </div>
         </button>
+        <Menu
+            v-if="!isGuest"
+            :ref="(el: any) => groupRoleMenuRef[group.id] = el"
+            :model="getGroupRoleMenuItems(group)"
+            :popup="true"
+            class="w-48"
+        >
+          <template #item="{ item }">
+            <a
+                v-if="!item.separator"
+                class="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
+                :class="item.label === 'Entfernen' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'"
+                @click="item.command?.()"
+            >
+              <Icon v-if="item.iconName" :name="item.iconName" class="text-sm"/>
+              <span>{{ item.label }}</span>
+            </a>
+          </template>
+        </Menu>
 
         <!-- Group Members (Expandable) -->
         <div

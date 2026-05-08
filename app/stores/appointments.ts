@@ -337,6 +337,21 @@ export const useAppointmentsStore = defineStore('appointments', {
             }
         },
 
+        // Teilnehmerrolle für alle Gruppenmitglieder ändern
+        async changeGroupRole(appointmentId: number, groupId: number, role: string) {
+            try {
+                await $fetch(`/api/v2/appointments/${appointmentId}/participants/groups/${groupId}`, {
+                    method: 'PATCH',
+                    body: {role}
+                })
+
+                await this.fetchAppointment(appointmentId)
+            } catch (err: any) {
+                this.error = err.message || 'Fehler beim Ändern der Rolle'
+                throw err
+            }
+        },
+
         // Gruppe hinzufügen
         async addGroupParticipant(appointmentId: number, groupId: number, role: string) {
             try {
