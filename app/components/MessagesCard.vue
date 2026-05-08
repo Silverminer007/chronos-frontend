@@ -5,6 +5,8 @@ import {useAppointmentsStore} from "~/stores/appointments";
 import {useDateFormatter} from "~/composables/useDateFormatter";
 import {useToast} from "primevue/usetoast";
 import Toast from "primevue/toast";
+import {useRoute} from "vue-router";
+import MessageDialog from "~/components/MessageDialog.vue";
 
 const appointmentsStore = useAppointmentsStore();
 const {formatDateTime} = useDateFormatter();
@@ -15,7 +17,11 @@ const {appointment} = defineProps<{
   appointment: Appointment;
 }>();
 
-const showMessageDialog = ref(false);
+const route = useRoute();
+const query = route.query;
+const openMessageDialogInitially = query.message === 'true';
+
+const showMessageDialog = ref(openMessageDialogInitially);
 
 const sortedMessages = computed(() => {
   if (!appointment) return [];
@@ -24,8 +30,7 @@ const sortedMessages = computed(() => {
   );
 });
 
-
-const handleSendMessage = async (data: { subject: string; message: string }) => {
+const handleSendMessage = async (data: { message: string }) => {
   if (!appointment) return;
 
   try {
@@ -36,6 +41,7 @@ const handleSendMessage = async (data: { subject: string; message: string }) => 
       life: 3000
     });
     showMessageDialog.value = false;
+    navigateTo('?message=false')
   } catch (err) {
     toast.add({
       severity: 'error',
@@ -43,6 +49,7 @@ const handleSendMessage = async (data: { subject: string; message: string }) => 
       detail: 'Bitte kontaktiere den Entwickler der App',
       life: 3000
     });
+    navigateTo('?message=true')
   }
 };
 </script>
@@ -81,7 +88,6 @@ const handleSendMessage = async (data: { subject: string; message: string }) => 
                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(message.timestamp) }}</p>
               </div>
             </div>
-            <h4 class="font-medium text-gray-900 dark:text-white mb-2">{{ message.title }}</h4>
             <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ message.body }}</p>
           </div>
         </div>
@@ -95,7 +101,7 @@ const handleSendMessage = async (data: { subject: string; message: string }) => 
   </div>
   <MessageDialog
       :visible="showMessageDialog"
-      :event-title="appointment.name"
+      :appointmentTitle="appointment.name"
       :recipient-count="appointment.participants?.length || 0"
       @close="showMessageDialog = false"
       @send="handleSendMessage"
