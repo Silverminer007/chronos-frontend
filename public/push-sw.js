@@ -217,6 +217,44 @@ async function handleNotification(data) {
             tag = `recheck-${appointment.id}`;
             break;
 
+        case 'PARTICIPATION_SUMMARY':
+            title = `Zwischenstand der Rückmeldungen zu ${appointment.name}`
+            const participationSummary = data.participation_summary;
+            if (!participationSummary || !participationSummary.approved || !participationSummary.rejected || !participationSummary.pending) {
+                body = 'Fehler beim laden der Zusammenfassung. Klicke auf die Benachrichtigung für Details zum Termin'
+                break;
+            }
+            body = `${participationSummary.approved.length} Zusagen / ${participationSummary.rejected.length} Absagen / ${participationSummary.pending.length} Ausstehend`
+            if(participationSummary.approved.length > 0) {
+                body += '\nZusagen:'
+                for(let i = 0; i < participationSummary.approved.length; i++) {
+                    body += `
+${participationSummary.approved[i]}`
+                }
+            } else {
+                body += '\nKeine Zusagen'
+            }
+            if(participationSummary.rejected.length > 0) {
+                body += '\nAbsagen:'
+                for(let i = 0; i < participationSummary.rejected.length; i++) {
+                    body += `
+${participationSummary.rejected[i]}`
+                }
+            } else {
+                body += '\nKeine Absagen'
+            }
+            if(participationSummary.pending.length > 0) {
+                body += '\nZusagen:'
+                for(let i = 0; i < participationSummary.pending.length; i++) {
+                    body += `
+${participationSummary.pending[i]}`
+                }
+            } else {
+                body += '\nKeine Rückmeldungen offen'
+            }
+            body += 'Für Details, klicke auf diese Benachrichtigung'
+            break;
+
         default:
             // Fallback für generische Benachrichtigungen
             if (data.title && data.body) {
