@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const toast = useToast();
 
-const {formatDate, formatTime} = useDateFormatter();
+const {formatDate, formatTime, formatDateTime} = useDateFormatter();
 
 const showEditDialog = ref<boolean>(false);
 
@@ -26,12 +26,20 @@ const getStatusLabel = (status: string) => {
 
 const shareLink = async () => {
   const url = `${window.location.origin}/appointment/${props.appointment.id}`;
+  const text =
+      `${props.appointment.name}
+Start: ${formatDateTime(props.appointment.start)}
+End: ${formatDateTime(props.appointment.end)}
+Zusagen: ${props.appointment.participants.filter(p => p.status === "APPROVED").length}
+Absagen: ${props.appointment.participants.filter(p => p.status === "REJECTED").length}
+
+Termindetails: ${url}`;
 
   if (navigator.share) {
     try {
       await navigator.share({
         title: props.appointment.name,
-        text: 'Schau dir Mal diesen Termin an und stimme ab, ob du dabei sein kannst',
+        text,
         url
       });
     } catch (err) {
@@ -46,7 +54,7 @@ const shareLink = async () => {
     }
   } else {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text);
       toast.add({
         severity: 'success',
         summary: 'Link kopiert',
@@ -93,28 +101,28 @@ const getStatusClass = (status: string) => {
               title="Link teilen"
               @click="shareLink"
           >
-            <Icon name="lucide:share-2" />
+            <Icon name="lucide:share-2"/>
           </button>
           <button
               class="w-10 h-10 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
               title="Termin bearbeiten"
               @click="showEditDialog = true"
           >
-            <Icon name="lucide:pencil" />
+            <Icon name="lucide:pencil"/>
           </button>
         </div>
       </div>
       <div class="flex flex-wrap gap-4 text-white/90 text-sm">
         <div class="flex items-center gap-2">
-          <Icon name="lucide:calendar" />
+          <Icon name="lucide:calendar"/>
           <span>{{ formatDate(appointment.start) }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <Icon name="lucide:clock" />
+          <Icon name="lucide:clock"/>
           <span>{{ formatTime(appointment.start) }} - {{ formatTime(appointment.end) }}</span>
         </div>
         <div v-if="appointment.venue" class="flex items-center gap-2">
-          <Icon name="lucide:map-pin" />
+          <Icon name="lucide:map-pin"/>
           <span>{{ appointment.venue }}</span>
         </div>
       </div>
@@ -127,7 +135,7 @@ const getStatusClass = (status: string) => {
       </div>
 
       <div class="flex items-center gap-2 text-sm">
-        <Icon name="lucide:users" class=" text-gray-400" />
+        <Icon name="lucide:users" class=" text-gray-400"/>
         <span class="text-gray-600 dark:text-gray-400">
                   Mindestens {{ appointment.minimal_attendees }} Teilnehmer erforderlich
                 </span>
