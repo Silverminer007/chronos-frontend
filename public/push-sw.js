@@ -218,7 +218,7 @@ async function handleNotification(data) {
             break;
 
         case 'PARTICIPATION_SUMMARY':
-            title = `Zwischenstand der Rückmeldungen zu ${appointment.name}`
+            title = `Zwischenstand der Rückmeldungen zu ${appointment?.name}`
             const participationSummary = data.participation_summary;
             if (!participationSummary || !participationSummary.approved || !participationSummary.rejected || !participationSummary.pending) {
                 body = 'Fehler beim laden der Zusammenfassung. Klicke auf die Benachrichtigung für Details zum Termin'
@@ -252,7 +252,7 @@ ${participationSummary.pending[i]}`
             } else {
                 body += '\nKeine Rückmeldungen offen'
             }
-            body += 'Für Details, klicke auf diese Benachrichtigung'
+            body += '\nFür Details, klicke auf diese Benachrichtigung'
             break;
 
         default:
