@@ -3,7 +3,7 @@ import { useAppointmentsStore } from '~/stores/appointments'
 import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ modelValue: boolean }>()
-const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
+const emit = defineEmits<{ 'update:modelValue': [boolean]; 'created': [id: number] }>()
 
 const appointmentStore = useAppointmentsStore()
 const toast = useToast()
@@ -109,7 +109,7 @@ async function submit() {
     ])
 
     close()
-    await navigateTo(`/appointment/${result.id}`)
+    emit('created', result.id)
   } catch {
     toast.add({ severity: 'error', summary: 'Fehler', detail: 'Termin konnte nicht erstellt werden', life: 3000 })
   } finally {

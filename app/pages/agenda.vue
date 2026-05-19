@@ -8,12 +8,21 @@ const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
 await useAsyncData('appointments', () => appointmentsStore.loadInitialAppointments({headers}))
 
 const route = useRoute()
-const addFormVariant = computed(() => route.query.addForm as string ?? '')
+const { variant: abVariant } = useAbTest()
+
+// Query param overrides AB assignment (for dev/admin use)
+const addFormVariant = computed(() =>
+  (route.query.addForm as string) || abVariant.value
+)
 
 const showCreateDialog = ref(false)
 const showBottomSheet = ref(false)
 const showInline = ref(false)
 const showStepper = ref(false)
+
+// Feedback state
+const pendingAppointmentId = ref<number | null>(null)
+const showFeedback = ref(false)
 
 function openCreate() {
   const v = addFormVariant.value
@@ -21,6 +30,16 @@ function openCreate() {
   else if (v === 'b') showInline.value = !showInline.value
   else if (v === 'c') showStepper.value = true
   else showCreateDialog.value = true
+}
+
+function onAppointmentCreated(id: number) {
+  pendingAppointmentId.value = id
+  showFeedback.value = true
+}
+
+function onFeedbackNavigate() {
+  showFeedback.value = false
+  navigateTo(`/appointment/${pendingAppointmentId.value}`)
 }
 </script>
 
@@ -33,7 +52,7 @@ function openCreate() {
     <div class="container mx-auto px-4 sm:px-6  pb-24">
       <div class="max-w-4xl mx-auto space-y-6">
         <!-- Variant B: Inline quick-add card -->
-        <CreateAppointmentInline v-if="addFormVariant === 'b'" v-model="showInline" />
+        <CreateAppointmentInline v-if="addFormVariant === 'b'" v-model="showInline" @created="onAppointmentCreated" />
 
         <!-- Appointment Cards -->
         <AppointmentCard
@@ -93,13 +112,16 @@ function openCreate() {
     </button>
 
     <!-- Variant A: Bottom Sheet -->
-    <CreateAppointmentBottomSheet v-if="addFormVariant === 'a'" v-model="showBottomSheet" />
+    <CreateAppointmentBottomSheet v-if="addFormVariant === 'a'" v-model="showBottomSheet" @created="onAppointmentCreated" />
 
     <!-- Variant C: Full-screen Stepper -->
-    <CreateAppointmentStepper v-if="addFormVariant === 'c'" v-model="showStepper" />
+    <CreateAppointmentStepper v-if="addFormVariant === 'c'" v-model="showStepper" @created="onAppointmentCreated" />
 
     <!-- Default: existing dialog -->
     <CreateAppointmentDialog v-if="!addFormVariant || addFormVariant === 'dialog'" v-model:visible="showCreateDialog"/>
+
+    <!-- Post-creation feedback widget -->
+    <AppointmentFormFeedback v-model="showFeedback" :variant="abVariant" @navigate="onFeedbackNavigate" />
 
     <Toast/>
   </div>
