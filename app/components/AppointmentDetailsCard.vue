@@ -13,7 +13,22 @@ const {shareAppointment} = useAppointmentShare();
 
 defineOptions({ inheritAttrs: false })
 
-const showEditDialog = ref<boolean>(false);
+const { variant: abVariant } = useAbTest()
+const route = useRoute()
+const editFormVariant = computed(() => (route.query.editForm as string) || abVariant.value)
+
+const showEditDialog = ref(false)
+const showEditBottomSheet = ref(false)
+const showEditInline = ref(false)
+const showEditStepper = ref(false)
+
+function openEdit() {
+  const v = editFormVariant.value
+  if (v === 'a') showEditBottomSheet.value = true
+  else if (v === 'b') showEditInline.value = !showEditInline.value
+  else if (v === 'c') showEditStepper.value = true
+  else showEditDialog.value = true
+}
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
@@ -60,11 +75,12 @@ const getStatusClass = (status: string) => {
             <Icon name="lucide:share-2"/>
           </button>
           <button
+              @click="openEdit()"
               class="w-10 h-10 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
               title="Termin bearbeiten"
               @click="showEditDialog = true"
           >
-            <Icon name="lucide:pencil"/>
+            <Icon :name="editFormVariant === 'b' && showEditInline ? 'lucide:x' : 'lucide:pencil'" />
           </button>
         </div>
       </div>
@@ -96,8 +112,31 @@ const getStatusClass = (status: string) => {
                   Mindestens {{ appointment.minimal_attendees }} Teilnehmer erforderlich
                 </span>
       </div>
+
+      <!-- Variant B: Inline edit -->
+      <EditAppointmentInline
+        v-if="editFormVariant === 'b'"
+        v-model="showEditInline"
+        :appointment="appointment"
+      />
     </div>
   </div>
+
+  <!-- Variant A: Bottom Sheet edit -->
+  <EditAppointmentBottomSheet
+    v-if="editFormVariant === 'a'"
+    v-model="showEditBottomSheet"
+    :appointment="appointment"
+  />
+
+  <!-- Variant C: Full-screen Stepper edit -->
+  <EditAppointmentStepper
+    v-if="editFormVariant === 'c'"
+    v-model="showEditStepper"
+    :appointment="appointment"
+  />
+
+  <!-- Default: existing dialog -->
   <EditAppointmentDialog
       v-model:visible="showEditDialog"
       :appointment="appointment"
