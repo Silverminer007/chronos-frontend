@@ -9,6 +9,7 @@ const appointmentsStore = useAppointmentsStore();
 const {formatDateTime} = useDateFormatter();
 
 const toast = useToast();
+const { track } = useTracking();
 
 const {appointment} = defineProps<{
   appointment: Appointment;
@@ -29,6 +30,7 @@ const handleSendMessage = async (data: { subject: string; message: string }) => 
 
   try {
     await appointmentsStore.sendMessage(appointment.id, data.message);
+    track('message_sent');
     toast.add({
       severity: 'success',
       summary: 'Nachricht versendet',

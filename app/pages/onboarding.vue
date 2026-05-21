@@ -66,7 +66,7 @@
 
         <button
             v-else
-            @click="completeOnboarding()"
+            @click="completeOnboarding(false)"
             class="px-6 py-2.5 rounded-lg font-semibold text-white bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 shadow-lg transition-all transform hover:scale-105"
         >
           Loslegen
@@ -76,7 +76,7 @@
       <!-- Skip -->
       <button
           v-if="currentStep < steps.length - 1"
-          @click="completeOnboarding()"
+          @click="completeOnboarding(true)"
           class="mt-4 text-white/60 hover:text-white/90 text-sm transition-colors"
       >
         Überspringen
@@ -91,6 +91,7 @@ definePageMeta({
 })
 
 import {useOnboarding} from "~/composables/useOnboarding";
+const { track } = useTracking();
 
 const currentStep = ref(0)
 
@@ -127,9 +128,10 @@ const steps = [
   }
 ]
 
-function completeOnboarding() {
+function completeOnboarding(skipped = false) {
   const {markShown} = useOnboarding();
   markShown()
+  track(skipped ? 'onboarding_skipped' : 'onboarding_completed')
   navigateTo('/agenda')
 }
 </script>

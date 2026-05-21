@@ -9,6 +9,7 @@ await fetchUser();
 
 const settingsStore = useSettingsStore();
 const toast = useToast();
+const { track } = useTracking();
 const {permission, subscribe, markAsked, isPushEnabled, isPushAvailable, requestPermission} = usePush();
 
 const pushEnabled = ref(false);
@@ -31,6 +32,7 @@ const handleTogglePush = async () => {
         await subscribe();
         markAsked('granted');
         pushEnabled.value = true;
+        track('push_notifications_enabled');
         toast.add({
           severity: 'success',
           summary: 'Push-Benachrichtigungen aktiviert',
@@ -67,6 +69,7 @@ const handleTogglePush = async () => {
 const handleSave = async () => {
   try {
     await settingsStore.saveSettings();
+    track('notification_settings_saved');
     toast.add({
       severity: 'success',
       summary: 'Einstellungen gespeichert',

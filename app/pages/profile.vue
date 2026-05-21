@@ -5,6 +5,7 @@ import type { LinkedAccount, Passkey } from '~/types';
 
 const authStore = useAuthStore();
 const toast = useToast();
+const { track } = useTracking();
 
 await authStore.fetchUser();
 
@@ -43,6 +44,7 @@ const handleUnlink = async (providerId: string) => {
   try {
     await authStore.unlinkAccount(providerId);
     linkedAccounts.value = linkedAccounts.value.filter(a => a.provider !== providerId);
+    track('account_unlinked');
     toast.add({ severity: 'success', summary: 'Konto getrennt', life: 3000 });
   } catch {
     toast.add({ severity: 'error', summary: 'Fehler', detail: 'Konto konnte nicht getrennt werden', life: 3000 });
@@ -76,6 +78,26 @@ onMounted(() => {
   fetchPasskeys();
 });
 
+const handleChangePassword = () => {
+  authStore.changePassword();
+  track('password_changed');
+};
+
+const handleLinkAccount = (providerId: string) => {
+  authStore.linkAccount(providerId);
+  track('account_linked');
+};
+
+const handleCreatePasskey = async () => {
+  await authStore.createPasskey();
+  track('passkey_created');
+};
+
+const handleDeletePasskey = async (passkeyId: string) => {
+  await authStore.deletePasskey(passkeyId);
+  track('passkey_deleted');
+};
+
 const handleSaveProfile = async () => {
   savingProfile.value = true;
   try {
@@ -84,6 +106,7 @@ const handleSaveProfile = async () => {
       last_name: lastName.value,
       email: email.value,
     });
+    track('profile_updated');
     toast.add({ severity: 'success', summary: 'Profil gespeichert', life: 3000 });
   } catch {
     toast.add({ severity: 'error', summary: 'Fehler beim Speichern', detail: 'Bitte versuche es erneut', life: 3000 });
@@ -163,7 +186,7 @@ const handleSaveProfile = async () => {
 
             <div class="flex justify-between pt-2">
               <button
-                  @click="authStore.changePassword()"
+                  @click="handleChangePassword"
                   class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-white bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon name="lucide:key" />
@@ -233,7 +256,7 @@ const handleSaveProfile = async () => {
               <!-- Not linked: link button -->
               <button
                 v-else
-                @click="authStore.linkAccount(provider.id)"
+                @click="handleLinkAccount(provider.id)"
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
               >
                 <Icon name="lucide:link" class="text-sm" />
@@ -256,7 +279,7 @@ const handleSaveProfile = async () => {
               </div>
             </div>
             <button
-              @click="authStore.createPasskey()"
+              @click="handleCreatePasskey"
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors shrink-0"
             >
               <Icon name="lucide:plus" class="text-sm" />
@@ -296,7 +319,7 @@ const handleSaveProfile = async () => {
                 </p>
               </div>
               <button
-                  @click="authStore.deletePasskey(passkey.id)"
+                  @click="handleDeletePasskey(passkey.id)"
                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon
@@ -335,7 +358,7 @@ const handleSaveProfile = async () => {
                   Abbrechen
                 </button>
                 <button
-                  @click="authStore.createPasskey()"
+                  @click="handleCreatePasskey"
                   class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-white bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all shadow-sm"
                 >
                   <Icon name="lucide:external-link" class="text-sm" />

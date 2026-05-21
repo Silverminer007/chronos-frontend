@@ -14,6 +14,7 @@ const emit = defineEmits<{
 
 const appointmentStore = useAppointmentsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const isVisible = computed({
   get: () => props.visible,
@@ -94,6 +95,7 @@ const createAppointment = async () => {
 
     const newAppointment = await appointmentStore.createAppointment(appointmentData);
 
+    track('appointment_created');
     toast.add({
       severity: 'success',
       summary: 'Termin erstellt',

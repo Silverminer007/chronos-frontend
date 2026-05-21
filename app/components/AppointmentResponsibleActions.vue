@@ -8,6 +8,7 @@ import ConfirmDialog from "~/components/ConfirmDialog.vue";
 const authStore = useAuthStore();
 const appointmentStore = useAppointmentsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const {appointment} = defineProps<{
   appointment: Appointment
@@ -51,6 +52,7 @@ const handleCancelAppointment = async () => {
   actionsLoading.value = true;
   try {
     await appointmentStore.cancelAppointment(appointment.id);
+    track('appointment_cancelled');
     toast.add({
       severity: 'success',
       summary: 'Termin abgesagt',

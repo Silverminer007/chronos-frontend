@@ -8,6 +8,7 @@ import Menu from 'primevue/menu';
 const appointmentsStore = useAppointmentsStore();
 const authStore = useAuthStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const {appointment} = defineProps<{
   appointment: Appointment;
@@ -26,6 +27,7 @@ const isResponsible = computed(() => {
 const handleAddParticipant = async (data: { id: number; role: string }) => {
   try {
     await appointmentsStore.addParticipant(appointment.id, data.id, data.role);
+    track('participant_added');
     toast.add({
       severity: 'success',
       summary: 'Teilnehmer hinzugefügt',
@@ -90,6 +92,7 @@ const handleChangeRole = async (userId: number, role: string) => {
 const handleRemoveParticipant = async (participant: UserParticipant) => {
   try {
     await appointmentsStore.removeParticipant(appointment.id, participant.user_id);
+    track('participant_removed');
     toast.add({
       severity: 'success',
       summary: 'Teilnehmer entfernt',

@@ -8,6 +8,7 @@ import {useToast} from "primevue/usetoast";
 const appointmentStore = useAppointmentsStore();
 const authStore = useAuthStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const {appointment} = defineProps<{ appointment: Appointment }>();
 
@@ -27,8 +28,10 @@ const updateParticipation = async (action: 'approve' | 'reject') => {
   try {
     if (action === 'approve') {
       await appointmentStore.approveAppointment(appointment.id);
+      track('appointment_approved');
     } else {
       await appointmentStore.rejectAppointment(appointment.id);
+      track('appointment_rejected');
     }
     toast.add({
       severity: 'success',

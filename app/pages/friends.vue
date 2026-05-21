@@ -8,6 +8,7 @@ await fetchUser();
 
 const friendshipsStore = useFriendshipsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const activeTab = ref<'friends' | 'requests'>('friends');
 const showAddDialog = ref(false);
@@ -19,6 +20,7 @@ onMounted(async () => {
 const handleRemoveFriend = async (friendId: number) => {
   try {
     await friendshipsStore.endFriendship(friendId);
+    track('friend_removed');
     toast.add({
       severity: 'success',
       summary: 'Freundschaft beendet',
@@ -38,6 +40,7 @@ const handleRemoveFriend = async (friendId: number) => {
 const handleAcceptRequest = async (requestId: number) => {
   try {
     await friendshipsStore.acceptRequest(requestId);
+    track('friend_request_accepted');
     toast.add({
       severity: 'success',
       summary: 'Anfrage angenommen',
@@ -57,6 +60,7 @@ const handleAcceptRequest = async (requestId: number) => {
 const handleDeclineRequest = async (requestId: number) => {
   try {
     await friendshipsStore.declineRequest(requestId);
+    track('friend_request_declined');
     toast.add({
       severity: 'info',
       summary: 'Anfrage abgelehnt',
@@ -76,6 +80,7 @@ const handleDeclineRequest = async (requestId: number) => {
 const handleCancelRequest = async (requestId: number) => {
   try {
     await friendshipsStore.cancelRequest(requestId);
+    track('friend_request_cancelled');
     toast.add({
       severity: 'info',
       summary: 'Anfrage zurückgezogen',
