@@ -1,21 +1,20 @@
 import formbricks from '@formbricks/js'
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(async () => {
     const config = useRuntimeConfig()
     const authStore = useAuthStore()
-    if (typeof window !== "undefined") {
-        formbricks.setup({
-            environmentId: config.public.formbricksEnvId,
-            appUrl: config.public.formbricksApiHost,
-        })
-    }
+
+    await formbricks.setup({
+        environmentId: config.public.formbricksEnvId,
+        appUrl: config.public.formbricksApiHost,
+    })
 
     watch(
         () => authStore.user,
-        (user) => {
+        async (user) => {
             if (!user) return
-            formbricks.setUserId(String(user.id))
-            formbricks.setEmail(user.email ?? "")
+            await formbricks.setUserId(String(user.id))
+            await formbricks.setEmail(user.email ?? "")
         },
         {immediate: true},
     )
