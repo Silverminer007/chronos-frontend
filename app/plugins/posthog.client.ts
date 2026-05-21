@@ -30,10 +30,7 @@ export default defineNuxtPlugin(() => {
         () => authStore.user,
         (user) => {
             if (!user) return
-            posthog.identify(String(user.id), {
-                email: user.email,
-                name: `${user.first_name} ${user.last_name}`.trim(),
-            })
+            posthog.identify(String(user.id))
         },
         { immediate: true },
     )
