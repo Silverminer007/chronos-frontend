@@ -25,6 +25,9 @@ export default defineNuxtConfig({
             impressumPhone: "",
             // Sentry DSN - set via NUXT_PUBLIC_SENTRY_DSN
             sentryDsn: "",
+            // Formbricks - set via NUXT_PUBLIC_FORMBRICKS_* environment variables
+            formbricksEnvId: "",
+            formbricksApiHost: "",
         }
     },
 
