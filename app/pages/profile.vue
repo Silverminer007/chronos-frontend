@@ -6,17 +6,6 @@ import type { LinkedAccount, Passkey } from '~/types';
 const authStore = useAuthStore();
 const toast = useToast();
 const { track } = useTracking();
-const { consent, accept: acceptConsent, decline: declineConsent } = useCookieConsent();
-
-function handleAcceptConsent() {
-  acceptConsent();
-  toast.add({ severity: 'success', summary: 'Analyse aktiviert', life: 3000 });
-}
-
-function handleDeclineConsent() {
-  declineConsent();
-  toast.add({ severity: 'info', summary: 'Analyse deaktiviert', life: 3000 });
-}
 
 await authStore.fetchUser();
 
@@ -339,65 +328,6 @@ const handleSaveProfile = async () => {
                 />
                 <span>Entfernen</span>
               </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Privacy & Analytics Card -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6 mb-6">
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
-              <Icon name="lucide:shield" class="text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <p class="font-semibold text-gray-900 dark:text-white">Datenschutz & Analyse</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Verwalte deine Einwilligung zur Nutzungsanalyse</p>
-            </div>
-          </div>
-
-          <div class="flex items-start justify-between gap-4 py-3.5 border-t border-gray-100 dark:border-neutral-700">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-neutral-700 flex items-center justify-center shrink-0">
-                <Icon name="lucide:bar-chart-2" class="text-gray-500 dark:text-gray-400" />
-              </div>
-              <div>
-                <p class="font-medium text-gray-900 dark:text-white text-sm">Nutzungsanalyse (PostHog)</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Hilft uns, Chronos zu verbessern. Daten werden ausschließlich in der EU verarbeitet.
-                </p>
-                <span
-                  class="inline-flex items-center gap-1 mt-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
-                  :class="consent === 'accepted'
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-500 dark:bg-neutral-700 dark:text-gray-400'"
-                >
-                  <Icon :name="consent === 'accepted' ? 'lucide:check-circle' : 'lucide:x-circle'" class="text-xs" />
-                  {{ consent === 'accepted' ? 'Aktiv' : 'Deaktiviert' }}
-                </span>
-              </div>
-            </div>
-
-            <div class="flex gap-2 shrink-0">
-              <button
-                v-if="consent !== 'declined'"
-                @click="handleDeclineConsent"
-                class="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
-              >
-                Ablehnen
-              </button>
-              <button
-                v-if="consent !== 'accepted'"
-                @click="handleAcceptConsent"
-                class="px-3 py-1.5 rounded-lg text-sm font-medium text-white bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all shadow-sm"
-              >
-                Akzeptieren
-              </button>
-              <span
-                v-if="consent === 'accepted'"
-                class="px-3 py-1.5 rounded-lg text-sm font-medium text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20"
-              >
-                Aktiv
-              </span>
             </div>
           </div>
         </div>

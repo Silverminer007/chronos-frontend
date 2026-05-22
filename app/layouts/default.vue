@@ -1,5 +1,4 @@
 <template>
-  <CookieConsentBanner/>
   <PwaInstallDialog/>
   <PushPermissionModal/>
   <NewFeaturesDialog/>
