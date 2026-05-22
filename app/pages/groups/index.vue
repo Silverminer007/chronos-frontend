@@ -8,6 +8,7 @@ await fetchUser();
 
 const groupsStore = useGroupsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const showCreateDialog = ref(false);
 
@@ -18,6 +19,7 @@ onMounted(async () => {
 const handleDeleteGroup = async (groupId: number) => {
   try {
     await groupsStore.deleteGroup(groupId);
+    track('group_deleted');
     toast.add({
       severity: 'success',
       summary: 'Gruppe gelöscht',

@@ -25,6 +25,9 @@ export default defineNuxtConfig({
             impressumPhone: "",
             // Sentry DSN - set via NUXT_PUBLIC_SENTRY_DSN
             sentryDsn: "",
+            // PostHog - set via NUXT_PUBLIC_POSTHOG_* environment variables
+            posthogKey: "",
+            posthogHost: "https://eu.i.posthog.com",
         }
     },
 

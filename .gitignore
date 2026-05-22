@@ -27,3 +27,7 @@ logs
 sw.*
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Playwright
+playwright-report/
+test-results/

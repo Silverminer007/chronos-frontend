@@ -11,6 +11,7 @@ await authStore.fetchUser();
 
 const groupsStore = useGroupsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const groupId = computed(() => Number(route.params.groupId));
 const group = computed(() => groupsStore.currentGroup);
@@ -48,6 +49,7 @@ onUnmounted(() => {
 const handleAddMember = async (userId: number) => {
   try {
     await groupsStore.addMember(groupId.value, userId);
+    track('group_member_added');
     toast.add({
       severity: 'success',
       summary: 'Mitglied hinzugefügt',
@@ -67,6 +69,7 @@ const handleAddMember = async (userId: number) => {
 const handleRemoveMember = async (userId: number) => {
   try {
     await groupsStore.removeMember(groupId.value, userId);
+    track('group_member_removed');
     toast.add({
       severity: 'success',
       summary: 'Mitglied entfernt',
@@ -88,6 +91,7 @@ const handleLeaveGroup = async () => {
 
   try {
     await groupsStore.leaveGroup(groupId.value, currentUserId.value);
+    track('group_left');
     toast.add({
       severity: 'info',
       summary: 'Gruppe verlassen',
@@ -109,6 +113,7 @@ const handleLeaveGroup = async () => {
 const handleDeleteGroup = async () => {
   try {
     await groupsStore.deleteGroup(groupId.value);
+    track('group_deleted');
     toast.add({
       severity: 'success',
       summary: 'Gruppe gelöscht',

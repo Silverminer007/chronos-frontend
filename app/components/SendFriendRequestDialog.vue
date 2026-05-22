@@ -12,6 +12,7 @@ const emit = defineEmits<{
 
 const friendshipsStore = useFriendshipsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const email = ref('');
 const loading = ref(false);
@@ -39,6 +40,7 @@ const sendRequest = async () => {
 
   try {
     await friendshipsStore.sendRequest(email.value);
+    track('friend_request_sent');
     toast.add({
       severity: 'success',
       summary: 'Anfrage gesendet',

@@ -12,6 +12,7 @@ const emit = defineEmits<{
 
 const groupsStore = useGroupsStore();
 const toast = useToast();
+const { track } = useTracking();
 
 const groupName = ref('');
 const loading = ref(false);
@@ -36,6 +37,7 @@ const createGroup = async () => {
 
   try {
     await groupsStore.createGroup(groupName.value.trim());
+    track('group_created');
     toast.add({
       severity: 'success',
       summary: 'Gruppe erstellt',
