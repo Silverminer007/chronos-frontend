@@ -27,13 +27,16 @@ const getStatusLabel = (status: string) => {
 const shareLink = async () => {
   const url = `${window.location.origin}/appointment/${props.appointment.id}`;
   const text =
-      `${props.appointment.name}
+      `*${props.appointment.name}*${props.appointment.description ? `\nBeschreibung: ${props.appointment.description}` : '' }
 Start: ${formatDateTime(props.appointment.start)}
-End: ${formatDateTime(props.appointment.end)}
+Ende: ${formatDateTime(props.appointment.end)}
+${props.appointment.venue ? `Ort: ${props.appointment.venue}\n` : '' }
+*Bisherige Rückmeldungen*:
 Zusagen: ${props.appointment.participants.filter(p => p.status === "APPROVED").length}
 Absagen: ${props.appointment.participants.filter(p => p.status === "REJECTED").length}
-
-Termindetails: ${url}`;
+Teilnehmer insgesamt: ${props.appointment.participants.length}
+${props.appointment.minimal_attendees ? `Mindest Teilnehmer: ${props.appointment.minimal_attendees}\n` : '' }
+Termindetails & Rückmeldung geben: ${url}`;
 
   if (navigator.share) {
     try {
