@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import type {Appointment} from '~/types'
 import {useDateFormatter} from "~/composables/useDateFormatter";
+import {useAppointmentShare} from "~/composables/useAppointmentShare";
 import EditAppointmentDialog from "~/components/EditAppointmentDialog.vue";
-import {useToast} from 'primevue/usetoast';
 
 const props = defineProps<{
   appointment: Appointment
 }>()
 
-const toast = useToast();
-
-const {formatDate, formatTime, formatDateTime} = useDateFormatter();
+const {formatDate, formatTime} = useDateFormatter();
+const {shareAppointment} = useAppointmentShare();
 
 const showEditDialog = ref<boolean>(false);
 
@@ -24,56 +23,7 @@ const getStatusLabel = (status: string) => {
   return labels[status] || status;
 };
 
-const shareLink = async () => {
-  const url = `${window.location.origin}/appointment/${props.appointment.id}`;
-  const text =
-      `*${props.appointment.name}*${props.appointment.description ? `\nBeschreibung: ${props.appointment.description}` : '' }
-Start: ${formatDateTime(props.appointment.start)}
-Ende: ${formatDateTime(props.appointment.end)}
-${props.appointment.venue ? `Ort: ${props.appointment.venue}\n` : '' }
-*Bisherige Rückmeldungen*:
-Zusagen: ${props.appointment.participants.filter(p => p.status === "APPROVED").length}
-Absagen: ${props.appointment.participants.filter(p => p.status === "REJECTED").length}
-Teilnehmer insgesamt: ${props.appointment.participants.length}
-${props.appointment.minimal_attendees ? `Mindest Teilnehmer: ${props.appointment.minimal_attendees}\n` : '' }
-Termindetails & Rückmeldung geben: ${url}`;
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: props.appointment.name,
-        text,
-        url
-      });
-    } catch (err) {
-      if ((err as DOMException).name !== 'AbortError') {
-        toast.add({
-          severity: 'error',
-          summary: 'Fehler',
-          detail: 'Teilen fehlgeschlagen',
-          life: 3000
-        });
-      }
-    }
-  } else {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.add({
-        severity: 'success',
-        summary: 'Link kopiert',
-        detail: 'Der Termin-Link wurde in die Zwischenablage kopiert',
-        life: 3000
-      });
-    } catch {
-      toast.add({
-        severity: 'error',
-        summary: 'Fehler',
-        detail: 'Link konnte nicht kopiert werden',
-        life: 3000
-      });
-    }
-  }
-};
+const shareLink = () => shareAppointment(props.appointment);
 
 const getStatusClass = (status: string) => {
   const classes: Record<string, string> = {
