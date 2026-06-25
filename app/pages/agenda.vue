@@ -3,43 +3,13 @@ import {useAppointmentsStore} from "~/stores/appointments";
 
 const appointmentsStore = useAppointmentsStore()
 
-// Get request headers for SSR - $fetch in Pinia stores doesn't have request context
 const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
 await useAsyncData('appointments', () => appointmentsStore.loadInitialAppointments({headers}))
 
-const route = useRoute()
-const { variant: abVariant } = useAbTest()
-
-// Query param overrides AB assignment (for dev/admin use)
-const addFormVariant = computed(() =>
-  (route.query.addForm as string) || abVariant.value
-)
-
-const showCreateDialog = ref(false)
-const showBottomSheet = ref(false)
-const showInline = ref(false)
 const showStepper = ref(false)
 
-// Feedback state
-const pendingAppointmentId = ref<number | null>(null)
-const showFeedback = ref(false)
-
-function openCreate() {
-  const v = addFormVariant.value
-  if (v === 'a') showBottomSheet.value = true
-  else if (v === 'b') showInline.value = !showInline.value
-  else if (v === 'c') showStepper.value = true
-  else showCreateDialog.value = true
-}
-
 function onAppointmentCreated(id: number) {
-  pendingAppointmentId.value = id
-  showFeedback.value = true
-}
-
-function onFeedbackNavigate() {
-  showFeedback.value = false
-  navigateTo(`/appointment/${pendingAppointmentId.value}`)
+  navigateTo(`/appointment/${id}`)
 }
 </script>
 
@@ -51,9 +21,6 @@ function onFeedbackNavigate() {
     <!-- Body -->
     <div class="container mx-auto px-4 sm:px-6  pb-24">
       <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Variant B: Inline quick-add card -->
-        <CreateAppointmentInline v-if="addFormVariant === 'b'" v-model="showInline" @created="onAppointmentCreated" />
-
         <!-- Appointment Cards -->
         <AppointmentCard
             v-for="appointment in appointmentsStore.appointments" :key="appointment.id"
@@ -105,23 +72,14 @@ function onFeedbackNavigate() {
 
     <!-- FAB - Create Appointment -->
     <button
-        @click="openCreate"
+        @click="showStepper = true"
         class="fixed bottom-6 right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-2xl bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all transform hover:scale-110 z-50"
     >
-      <Icon :name="addFormVariant === 'b' && showInline ? 'lucide:x' : 'lucide:plus'" class=" text-xl sm:text-2xl" />
+      <Icon name="lucide:plus" class=" text-xl sm:text-2xl" />
     </button>
 
-    <!-- Variant A: Bottom Sheet -->
-    <CreateAppointmentBottomSheet v-if="addFormVariant === 'a'" v-model="showBottomSheet" @created="onAppointmentCreated" />
-
-    <!-- Variant C: Full-screen Stepper -->
-    <CreateAppointmentStepper v-if="addFormVariant === 'c'" v-model="showStepper" @created="onAppointmentCreated" />
-
-    <!-- Default: existing dialog -->
-    <CreateAppointmentDialog v-if="!addFormVariant || addFormVariant === 'dialog'" v-model:visible="showCreateDialog"/>
-
-    <!-- Post-creation feedback widget -->
-    <AppointmentFormFeedback v-model="showFeedback" :variant="abVariant" @navigate="onFeedbackNavigate" />
+    <!-- Create Appointment Stepper -->
+    <CreateAppointmentStepper v-model="showStepper" @created="onAppointmentCreated" />
 
     <Toast/>
   </div>
