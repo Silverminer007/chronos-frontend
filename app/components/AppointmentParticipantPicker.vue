@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useFriends } from '~/composables/useFriends'
 import { useGroups } from '~/composables/useGroups'
-import type { Friend, Group } from '~/types'
+import type { Friend, Group, Role } from '~/types'
 
-type Role = 'ATTENDANT' | 'RESPONSIBLE' | 'HELPER' | 'GUEST'
+type ParticipationRole = Exclude<Role, 'NONE'>
 
-interface SelectedUser { id: number; name: string; role: Role }
-interface SelectedGroup { id: number; name: string; role: Role; memberCount: number }
+interface SelectedUser { id: number; name: string; role: ParticipationRole }
+interface SelectedGroup { id: number; name: string; role: ParticipationRole; memberCount: number }
 
 const emit = defineEmits<{ change: [userCount: number, groupMemberCount: number] }>()
 
@@ -78,16 +78,16 @@ function removeGroup(id: number) {
   selectedGroups.value = selectedGroups.value.filter(g => g.id !== id)
 }
 
-const ROLE_CYCLE: Role[] = ['ATTENDANT', 'RESPONSIBLE', 'HELPER', 'GUEST']
+const ROLE_CYCLE: ParticipationRole[] = ['ATTENDANT', 'RESPONSIBLE', 'HELPER', 'GUEST']
 
-const ROLE_META: Record<Role, { short: string; class: string }> = {
+const ROLE_META: Record<ParticipationRole, { short: string; class: string }> = {
   ATTENDANT:   { short: 'TN',   class: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' },
   RESPONSIBLE: { short: 'Org',  class: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' },
   HELPER:      { short: 'Helf', class: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' },
   GUEST:       { short: 'Gast', class: 'bg-gray-100 dark:bg-neutral-600 text-gray-600 dark:text-gray-300' },
 }
 
-function cycleRole(item: SelectedUser | SelectedGroup) {
+function cycleRole(item: SelectedUser | SelectedGroup): void {
   const idx = ROLE_CYCLE.indexOf(item.role)
   item.role = ROLE_CYCLE[(idx + 1) % ROLE_CYCLE.length]!
 }
