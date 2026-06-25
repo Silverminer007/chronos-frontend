@@ -72,8 +72,8 @@ function onAppointmentCreated(id: number) {
 
     <!-- FAB - Create Appointment -->
     <button
-        @click="showStepper = true"
         class="fixed bottom-6 right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-2xl bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 transition-all transform hover:scale-110 z-50"
+        @click="showStepper = true"
     >
       <Icon name="lucide:plus" class=" text-xl sm:text-2xl" />
     </button>

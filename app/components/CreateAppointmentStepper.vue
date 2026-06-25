@@ -11,7 +11,10 @@ const toast = useToast()
 const step = ref(1)
 const TOTAL_STEPS = 6
 const saving = ref(false)
-const picker = ref<{ getSelectedUsers: () => any[]; getSelectedGroups: () => any[] } | null>(null)
+const picker = ref<{
+  getSelectedUsers: () => { id: number; role: string }[]
+  getSelectedGroups: () => { id: number; role: string }[]
+} | null>(null)
 const stepDirection = ref<'forward' | 'back'>('forward')
 
 const titleInput = ref<HTMLInputElement | null>(null)
@@ -196,7 +199,7 @@ async function submit() {
       end: computedEnd.value!.toISOString(),
       venue: venue.value.trim() || null,
       minimal_attendees: hasAttendees.value ? minimalAttendees.value : 0
-    } as any)
+    })
 
     const users = picker.value?.getSelectedUsers() ?? []
     const groups = picker.value?.getSelectedGroups() ?? []
@@ -310,8 +313,8 @@ function onTouchEnd(e: TouchEvent) {
         <div class="flex items-center justify-between px-5 pt-4 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
           <button
             type="button"
-            @click="step > 1 ? goBack() : close()"
             class="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+            @click="step > 1 ? goBack() : close()"
           >
             <Icon :name="step > 1 ? 'lucide:arrow-left' : 'lucide:x'" class="text-xl" />
           </button>
@@ -354,8 +357,8 @@ function onTouchEnd(e: TouchEvent) {
                 v-model="name"
                 type="text"
                 placeholder="z.B. Sommerfest 2025"
-                @keydown.enter="goNext"
                 class="w-full max-w-sm text-center text-2xl font-semibold bg-transparent border-0 border-b-2 border-gray-200 dark:border-neutral-600 focus:border-purple-500 dark:focus:border-purple-400 outline-none pb-3 text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-neutral-600 transition-colors"
+                @keydown.enter="goNext"
               />
             </div>
 
@@ -372,8 +375,8 @@ function onTouchEnd(e: TouchEvent) {
                   v-for="chip in TODAY_CHIPS"
                   :key="chip.days"
                   type="button"
-                  @click="setDatePart(chip.days)"
                   class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                  @click="setDatePart(chip.days)"
                 >
                   {{ chip.label }}
                 </button>
@@ -399,22 +402,22 @@ function onTouchEnd(e: TouchEvent) {
                   v-for="chip in DURATION_CHIPS"
                   :key="chip.minutes"
                   type="button"
-                  @click="selectDuration(chip.minutes)"
                   class="py-4 rounded-2xl text-base font-semibold transition-all"
                   :class="!showCustomDuration && selectedDuration === chip.minutes
                     ? 'bg-purple-600 text-white shadow-lg scale-[1.02]'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300'"
+                  @click="selectDuration(chip.minutes)"
                 >
                   {{ chip.label }}
                 </button>
 
                 <button
                   type="button"
-                  @click="toggleCustomDuration"
                   class="py-4 rounded-2xl text-base font-semibold transition-all"
                   :class="showCustomDuration
                     ? 'bg-purple-600 text-white shadow-lg scale-[1.02] col-span-2'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20'"
+                  @click="toggleCustomDuration"
                 >
                   Eigene Dauer
                 </button>
@@ -427,11 +430,11 @@ function onTouchEnd(e: TouchEvent) {
                       v-for="unit in DURATION_UNITS"
                       :key="unit.value"
                       type="button"
-                      @click="customDurationUnit = unit.value"
                       class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
                       :class="customDurationUnit === unit.value
                         ? 'bg-purple-600 text-white shadow-sm'
                         : 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'"
+                      @click="customDurationUnit = unit.value"
                     >
                       {{ unit.label }}
                     </button>
@@ -474,8 +477,8 @@ function onTouchEnd(e: TouchEvent) {
                 v-model="venue"
                 type="text"
                 placeholder="z.B. Vereinsheim"
-                @keydown.enter="goNext"
                 class="w-full max-w-sm text-center text-xl bg-transparent border-0 border-b-2 border-gray-200 dark:border-neutral-600 focus:border-purple-500 dark:focus:border-purple-400 outline-none pb-3 text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-neutral-600 transition-colors"
+                @keydown.enter="goNext"
               />
             </div>
 
@@ -494,17 +497,17 @@ function onTouchEnd(e: TouchEvent) {
                 <div class="flex gap-3 justify-center mb-3">
                   <button
                     type="button"
-                    @click="hasAttendees = true"
                     class="flex-1 py-3.5 rounded-2xl text-base font-bold transition-all max-w-[120px]"
                     :class="hasAttendees ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20'"
+                    @click="hasAttendees = true"
                   >
                     Ja
                   </button>
                   <button
                     type="button"
-                    @click="hasAttendees = false"
                     class="flex-1 py-3.5 rounded-2xl text-base font-bold transition-all max-w-[120px]"
                     :class="!hasAttendees ? 'bg-gray-800 dark:bg-neutral-200 text-white dark:text-neutral-900 shadow-lg' : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-700'"
+                    @click="hasAttendees = false"
                   >
                     Nein
                   </button>
@@ -514,14 +517,14 @@ function onTouchEnd(e: TouchEvent) {
                   <div v-if="hasAttendees" class="flex items-center justify-center gap-5 py-2">
                     <button
                       type="button"
-                      @click="minimalAttendees = Math.max(0, minimalAttendees - 1)"
                       class="w-11 h-11 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-2xl hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+                      @click="minimalAttendees = Math.max(0, minimalAttendees - 1)"
                     >−</button>
                     <span class="w-10 text-center font-bold text-4xl text-gray-900 dark:text-white">{{ minimalAttendees }}</span>
                     <button
                       type="button"
-                      @click="minimalAttendees++"
                       class="w-11 h-11 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-2xl hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+                      @click="minimalAttendees++"
                     >+</button>
                   </div>
                 </Transition>
@@ -541,28 +544,28 @@ function onTouchEnd(e: TouchEvent) {
           <button
             v-if="step > 1"
             type="button"
-            @click="goBack"
             class="px-5 py-3.5 rounded-2xl font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+            @click="goBack"
           >
             Zurück
           </button>
           <button
             v-else
             type="button"
-            @click="close"
             class="px-5 py-3.5 rounded-2xl font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+            @click="close"
           >
             Abbrechen
           </button>
 
           <button
             type="button"
-            @click="goNext"
             :disabled="!canProceed || saving"
             class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-white transition-all disabled:opacity-50"
             :class="canProceed && !saving
               ? 'bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 shadow-lg active:scale-[0.98]'
               : 'bg-gray-200 dark:bg-neutral-700 text-gray-400 dark:text-neutral-500 cursor-not-allowed'"
+            @click="goNext"
           >
             <Icon v-if="saving" name="lucide:loader-circle" class="animate-spin" />
             <span>{{ step < TOTAL_STEPS ? 'Weiter' : (saving ? 'Erstelle…' : 'Erstellen') }}</span>

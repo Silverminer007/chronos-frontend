@@ -152,7 +152,7 @@ async function submit() {
       end: computedEnd.value!.toISOString(),
       venue: form.value.venue.trim() || null,
       minimal_attendees: form.value.hasAttendees ? form.value.minimalAttendees : 0,
-    } as any)
+    })
     await appointmentStore.fetchAppointment(props.appointment.id)
     toast.add({severity: 'success', summary: 'Änderungen gespeichert', life: 3000})
     close()
@@ -193,8 +193,8 @@ async function submit() {
             class="flex items-center justify-between px-6 py-3 border-b border-gray-100 dark:border-neutral-700 flex-shrink-0">
           <h2 class="text-lg font-bold text-gray-900 dark:text-white">Termin bearbeiten</h2>
           <button
-              @click="close"
               class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+              @click="close"
           >
             <Icon name="lucide:x" class="text-base"/>
           </button>
@@ -248,21 +248,21 @@ async function submit() {
                   v-for="chip in DURATION_CHIPS"
                   :key="chip.minutes"
                   type="button"
-                  @click="selectDuration(chip.minutes)"
                   class="px-3 py-2 rounded-full text-sm font-medium transition-all"
                   :class="!showCustomDuration && selectedDuration === chip.minutes
                 ? 'bg-purple-600 text-white shadow-sm'
                 : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-600'"
+                  @click="selectDuration(chip.minutes)"
               >
                 {{ chip.label }}
               </button>
               <button
                   type="button"
-                  @click="toggleCustomDuration"
                   class="px-3 py-2 rounded-full text-sm font-medium transition-all"
                   :class="showCustomDuration
                 ? 'bg-purple-600 text-white shadow-sm'
                 : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-600'"
+                  @click="toggleCustomDuration"
               >
                 Eigene…
               </button>
@@ -273,11 +273,11 @@ async function submit() {
                     v-for="unit in DURATION_UNITS"
                     :key="unit.value"
                     type="button"
-                    @click="customDurationUnit = unit.value"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-all"
                     :class="customDurationUnit === unit.value
                   ? 'bg-purple-600 text-white shadow-sm'
                   : 'bg-gray-100 dark:bg-neutral-700 text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'"
+                    @click="customDurationUnit = unit.value"
                 >
                   {{ unit.label }}
                 </button>
@@ -299,9 +299,9 @@ async function submit() {
             </div>
             <button
                 type="button"
-                @click="form.hasAttendees = !form.hasAttendees"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0"
                 :class="form.hasAttendees ? 'bg-purple-600' : 'bg-gray-200 dark:bg-neutral-600'"
+                @click="form.hasAttendees = !form.hasAttendees"
             >
             <span
                 class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"
@@ -320,8 +320,8 @@ async function submit() {
               <div class="flex items-center gap-3 ml-auto">
                 <button
                     type="button"
-                    @click="form.minimalAttendees = Math.max(0, form.minimalAttendees - 1)"
                     class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-200 flex items-center justify-center font-bold text-lg leading-none hover:bg-purple-200 dark:hover:bg-purple-700 transition-colors"
+                    @click="form.minimalAttendees = Math.max(0, form.minimalAttendees - 1)"
                 >−
                 </button>
                 <span class="w-8 text-center font-bold text-purple-900 dark:text-purple-100 text-lg">{{
@@ -329,8 +329,8 @@ async function submit() {
                   }}</span>
                 <button
                     type="button"
-                    @click="form.minimalAttendees++"
                     class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-200 flex items-center justify-center font-bold text-lg leading-none hover:bg-purple-200 dark:hover:bg-purple-700 transition-colors"
+                    @click="form.minimalAttendees++"
                 >+
                 </button>
               </div>
@@ -338,7 +338,8 @@ async function submit() {
           </Transition>
 
           <!-- Changes info -->
-          <div v-if="hasChanges"
+          <div
+v-if="hasChanges"
                class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
             <div class="flex gap-3">
               <Icon name="lucide:info" class="text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0"/>
@@ -349,16 +350,17 @@ async function submit() {
         </div>
 
         <!-- Submit button -->
-        <div class="px-6 pt-4 border-t border-gray-100 dark:border-neutral-700 flex-shrink-0"
+        <div
+class="px-6 pt-4 border-t border-gray-100 dark:border-neutral-700 flex-shrink-0"
              style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
           <button
               type="button"
-              @click="submit"
               :disabled="!isValid || !hasChanges || saving"
               class="w-full py-4 rounded-2xl font-bold text-lg text-white transition-all"
               :class="isValid && hasChanges && !saving
             ? 'bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 shadow-lg active:scale-[0.98]'
             : 'bg-gray-200 dark:bg-neutral-700 text-gray-400 dark:text-neutral-500 cursor-not-allowed'"
+              @click="submit"
           >
           <span v-if="saving" class="flex items-center justify-center gap-2">
             <Icon name="lucide:loader-circle" class="animate-spin"/>

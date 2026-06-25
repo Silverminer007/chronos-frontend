@@ -109,22 +109,22 @@ defineExpose({
     <div class="flex gap-1 p-1 bg-gray-100 dark:bg-neutral-700 rounded-xl">
       <button
         type="button"
-        @click="tab = 'users'"
         class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-sm font-medium transition-all"
         :class="tab === 'users'
           ? 'bg-white dark:bg-neutral-600 text-gray-900 dark:text-white shadow-sm'
           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+        @click="tab = 'users'"
       >
         <Icon name="lucide:user" class="text-xs" />
         Personen
       </button>
       <button
         type="button"
-        @click="tab = 'groups'"
         class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-sm font-medium transition-all"
         :class="tab === 'groups'
           ? 'bg-white dark:bg-neutral-600 text-gray-900 dark:text-white shadow-sm'
           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+        @click="tab = 'groups'"
       >
         <Icon name="lucide:users" class="text-xs" />
         Gruppen
@@ -138,8 +138,8 @@ defineExpose({
         v-model="query"
         type="text"
         :placeholder="tab === 'users' ? 'Freund suchen…' : 'Gruppe suchen…'"
-        @input="onInput"
         class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-600 bg-gray-50 dark:bg-neutral-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-gray-400 dark:placeholder:text-neutral-500"
+        @input="onInput"
       />
       <Icon
         v-if="isLoading"
@@ -159,9 +159,9 @@ defineExpose({
           v-for="friend in userResults"
           :key="friend.user_id"
           type="button"
-          @click="selectUser(friend)"
           :disabled="selectedUsers.some(u => u.id === friend.user_id)"
           class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
+          @click="selectUser(friend)"
         >
           <div class="w-8 h-8 rounded-full bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 flex items-center justify-center flex-shrink-0">
             <Icon name="lucide:user" class="text-purple-600 dark:text-purple-400 text-xs" />
@@ -184,9 +184,9 @@ defineExpose({
           v-for="group in groupResults"
           :key="group.id"
           type="button"
-          @click="selectGroup(group)"
           :disabled="selectedGroups.some(g => g.id === group.id)"
           class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
+          @click="selectGroup(group)"
         >
           <div class="w-8 h-8 rounded-full bg-linear-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 flex items-center justify-center flex-shrink-0">
             <Icon name="lucide:users" class="text-blue-600 dark:text-blue-400 text-xs" />
@@ -224,15 +224,15 @@ defineExpose({
         <span class="text-xs font-medium text-gray-800 dark:text-gray-200 max-w-[90px] truncate">{{ user.name }}</span>
         <button
           type="button"
-          @click="cycleRole(user)"
           class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold transition-colors flex-shrink-0"
           :class="ROLE_META[user.role].class"
           title="Tippen zum Wechseln"
+          @click="cycleRole(user)"
         >{{ ROLE_META[user.role].short }}</button>
         <button
           type="button"
-          @click="removeUser(user.id)"
           class="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-neutral-600 transition-colors flex-shrink-0"
+          @click="removeUser(user.id)"
         >
           <Icon name="lucide:x" class="text-[10px]" />
         </button>
@@ -248,15 +248,15 @@ defineExpose({
         <span class="text-xs font-medium text-blue-800 dark:text-blue-200 max-w-[90px] truncate">{{ group.name }}</span>
         <button
           type="button"
-          @click="cycleRole(group)"
           class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold transition-colors flex-shrink-0"
           :class="ROLE_META[group.role].class"
           title="Tippen zum Wechseln"
+          @click="cycleRole(group)"
         >{{ ROLE_META[group.role].short }}</button>
         <button
           type="button"
-          @click="removeGroup(group.id)"
           class="w-4 h-4 flex items-center justify-center rounded-full text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors flex-shrink-0"
+          @click="removeGroup(group.id)"
         >
           <Icon name="lucide:x" class="text-[10px]" />
         </button>

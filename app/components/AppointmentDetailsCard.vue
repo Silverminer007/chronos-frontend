@@ -59,9 +59,9 @@ const getStatusClass = (status: string) => {
             <Icon name="lucide:share-2"/>
           </button>
           <button
-              @click="showEditSheet = true"
               class="w-10 h-10 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
               title="Termin bearbeiten"
+              @click="showEditSheet = true"
           >
             <Icon name="lucide:pencil" />
           </button>
