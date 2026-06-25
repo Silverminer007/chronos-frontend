@@ -51,8 +51,8 @@ function initDefaults() {
   showCustomDuration.value = false
   customDurationValue.value = 60
   customDurationUnit.value = 'minutes'
-  _invitedUserCount.value = 0
-  _invitedGroupMemberCount.value = 0
+  invitedUserCount.value = 0
+  invitedGroupMemberCount.value = 0
 
   const now = new Date()
   const start = new Date(now)
@@ -122,16 +122,16 @@ const durationLabel = computed(() => {
   return `${m} Min`
 })
 
-const _invitedUserCount = ref(0)
-const _invitedGroupMemberCount = ref(0)
+const invitedUserCount = ref(0)
+const invitedGroupMemberCount = ref(0)
 
 function onPickerChange(userCount: number, groupMemberCount: number) {
-  _invitedUserCount.value = userCount
-  _invitedGroupMemberCount.value = groupMemberCount
+  invitedUserCount.value = userCount
+  invitedGroupMemberCount.value = groupMemberCount
 }
 
 const participantsLabel = computed(() => {
-  const total = _invitedUserCount.value + _invitedGroupMemberCount.value
+  const total = invitedUserCount.value + invitedGroupMemberCount.value
   return total > 0 ? `${total} Eingeladene` : null
 })
 
@@ -181,11 +181,15 @@ async function submit() {
 
     const users = picker.value?.getSelectedUsers() ?? []
     const groups = picker.value?.getSelectedGroups() ?? []
+    let failedCount = 0
     for (const u of users) {
-      await appointmentStore.addParticipant(result.id, u.id, u.role).catch(() => null)
+      await appointmentStore.addParticipant(result.id, u.id, u.role).catch(() => { failedCount++ })
     }
     for (const g of groups) {
-      await appointmentStore.addGroupParticipant(result.id, g.id, g.role).catch(() => null)
+      await appointmentStore.addGroupParticipant(result.id, g.id, g.role).catch(() => { failedCount++ })
+    }
+    if (failedCount > 0) {
+      toast.add({ severity: 'warn', summary: 'Teilweise erfolgreich', detail: `Termin erstellt, aber ${failedCount} Einladung${failedCount === 1 ? '' : 'en'} konnte${failedCount === 1 ? '' : 'n'} nicht gesendet werden.`, life: 5000 })
     }
 
     close()

@@ -31,6 +31,8 @@ const noResults = computed(() =>
 
 let debounceTimer: ReturnType<typeof setTimeout>
 
+onUnmounted(() => clearTimeout(debounceTimer))
+
 function onInput() {
   clearTimeout(debounceTimer)
   if (query.value.length < 2) {
