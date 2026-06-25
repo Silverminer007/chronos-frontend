@@ -6,7 +6,9 @@ import type { Friend, Group } from '~/types'
 type Role = 'ATTENDANT' | 'RESPONSIBLE' | 'HELPER' | 'GUEST'
 
 interface SelectedUser { id: number; name: string; role: Role }
-interface SelectedGroup { id: number; name: string; role: Role }
+interface SelectedGroup { id: number; name: string; role: Role; memberCount: number }
+
+const emit = defineEmits<{ change: [userCount: number, groupMemberCount: number] }>()
 
 const { searchFriends, loading: friendsLoading } = useFriends()
 const { searchGroups, loading: groupsLoading } = useGroups()
@@ -63,7 +65,7 @@ function selectUser(friend: Friend) {
 
 function selectGroup(group: Group) {
   if (selectedGroups.value.some(g => g.id === group.id)) return
-  selectedGroups.value.push({ id: group.id, name: group.name, role: 'ATTENDANT' })
+  selectedGroups.value.push({ id: group.id, name: group.name, role: 'ATTENDANT', memberCount: group.members?.length ?? 0 })
   query.value = ''
   groupResults.value = []
 }
@@ -89,6 +91,11 @@ function cycleRole(item: SelectedUser | SelectedGroup) {
   const idx = ROLE_CYCLE.indexOf(item.role)
   item.role = ROLE_CYCLE[(idx + 1) % ROLE_CYCLE.length]
 }
+
+watch([selectedUsers, selectedGroups], () => {
+  const groupMemberCount = selectedGroups.value.reduce((s, g) => s + g.memberCount, 0)
+  emit('change', selectedUsers.value.length, groupMemberCount)
+}, { deep: true })
 
 defineExpose({
   getSelectedUsers: () => selectedUsers.value,
