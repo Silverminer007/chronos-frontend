@@ -221,9 +221,9 @@ async function submit() {
 
 // Swipe on mobile
 const touchStartX = ref(0)
-function onTouchStart(e: TouchEvent) { touchStartX.value = e.touches[0].clientX }
+function onTouchStart(e: TouchEvent) { touchStartX.value = e.touches[0]?.clientX ?? 0 }
 function onTouchEnd(e: TouchEvent) {
-  const dx = e.changedTouches[0].clientX - touchStartX.value
+  const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.value
   if (Math.abs(dx) < 50) return
   if (dx < 0 && canProceed.value) goNext()
   else if (dx > 0) goBack()

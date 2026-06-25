@@ -89,7 +89,7 @@ const ROLE_META: Record<Role, { short: string; class: string }> = {
 
 function cycleRole(item: SelectedUser | SelectedGroup) {
   const idx = ROLE_CYCLE.indexOf(item.role)
-  item.role = ROLE_CYCLE[(idx + 1) % ROLE_CYCLE.length]
+  item.role = ROLE_CYCLE[(idx + 1) % ROLE_CYCLE.length]!
 }
 
 watch([selectedUsers, selectedGroups], () => {
